@@ -21,22 +21,40 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     await client.connect();
+    console.log("Dental Care database connected");
     const appointmentsCollection = client
       .db("dental_care")
       .collection("appointmentsCollection");
-    console.log("Dental Care database connected");
+    const bookingCollection = client.db("dental_care").collection("booking");
 
     app.get("/", async (req, res) => {
       res.send("Dental Care server is running");
     });
 
-    // Get Appointments
-    // get service from db
+    // Appointments
+    // get
     app.get("/appointments", async (req, res) => {
       const query = {};
       const cursor = appointmentsCollection.find(query);
       const appointments = await cursor.toArray();
       res.send(appointments);
+    });
+
+    // Booking
+    //post
+    app.post("/booking", async (req, res) => {
+      const booking = req.body;
+      const query = {
+        treatment: booking.treatment,
+        date: booking.date,
+        patientEmail: booking.patientEmail,
+      };
+      const exists = await bookingCollection.findOne(query);
+      if (exists) {
+        return res.send({ success: false, booking: exists });
+      }
+      const result = await bookingCollection.insertOne(booking);
+      return res.send({ success: true, result });
     });
   } finally {
   }

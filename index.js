@@ -33,20 +33,27 @@ const run = async () => {
     });
 
     // Users
-    //post 
-    app.put('/user/:email', (req, res) => {
+    //post
+    app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
-      const filter = {email};
-      const options = {upsert: true};
+      const filter = { email };
+      const options = { upsert: true };
 
       const updateDoc = {
-        $set: user
-      }
+        $set: user,
+      };
 
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
-    })
+    });
+
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const cursor = userCollection.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
+    });
 
     // Appointments
     // get

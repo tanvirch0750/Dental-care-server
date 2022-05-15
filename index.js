@@ -37,6 +37,7 @@ const run = async () => {
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
+      console.log(user);
       const filter = { email };
       const options = { upsert: true };
 
@@ -45,7 +46,10 @@ const run = async () => {
       };
 
       const result = await userCollection.updateOne(filter, updateDoc, options);
-      res.send(result);
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, {
+        expiresIn: "1h",
+      });
+      res.send({ result, token });
     });
 
     app.get("/users", async (req, res) => {
@@ -74,7 +78,6 @@ const run = async () => {
       // get the booking of that day
       const query = { date: date };
       const bookings = await bookingCollection.find(query).toArray();
-      console.log(bookings);
 
       // for each appointment, find booking for that appointment
       appointments.forEach((appointment) => {
@@ -93,7 +96,6 @@ const run = async () => {
     //get
     app.get("/booking", async (req, res) => {
       const patient = req.query.patient;
-      console.log(patient);
       const query = { patientEmail: patient };
       const cursor = bookingCollection.find(query);
       const bookings = await cursor.toArray();

@@ -42,7 +42,7 @@ const run = async () => {
 
     // Available slots
     app.get("/available", async (req, res) => {
-      const date = req.query.date || "May 14, 2022";
+      const date = req.query.date;
 
       // get all appointments
       const appointments = await appointmentsCollection.find().toArray();
@@ -50,6 +50,7 @@ const run = async () => {
       // get the booking of that day
       const query = { date: date };
       const bookings = await bookingCollection.find(query).toArray();
+      console.log(bookings);
 
       // for each appointment, find booking for that appointment
       appointments.forEach((appointment) => {
@@ -58,7 +59,6 @@ const run = async () => {
         );
         const booked = appointmentBooking.map((app) => app.slot);
         const available = appointment.slots.filter((a) => !booked.includes(a));
-        // appointment.available = available;
         appointment.slots = available;
       });
 
@@ -66,6 +66,16 @@ const run = async () => {
     });
 
     // Booking
+    //get
+    app.get("/booking", async (req, res) => {
+      const patient = req.query.patient;
+      console.log(patient);
+      const query = { patientEmail: patient };
+      const cursor = bookingCollection.find(query);
+      const bookings = await cursor.toArray();
+      res.send(bookings);
+    });
+
     //post
     app.post("/booking", async (req, res) => {
       const booking = req.body;

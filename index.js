@@ -26,10 +26,27 @@ const run = async () => {
       .db("dental_care")
       .collection("appointmentsCollection");
     const bookingCollection = client.db("dental_care").collection("booking");
+    const userCollection = client.db("dental_care").collection("users");
 
     app.get("/", async (req, res) => {
       res.send("Dental Care server is running");
     });
+
+    // Users
+    //post 
+    app.put('/user/:email', (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = {email};
+      const options = {upsert: true};
+
+      const updateDoc = {
+        $set: user
+      }
+
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
 
     // Appointments
     // get

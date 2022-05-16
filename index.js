@@ -49,7 +49,7 @@ const run = async () => {
 
     // primary route
     app.get("/", async (req, res) => {
-      res.send("Dental Care server is running");
+      res.send("welcome to Dental care server");
     });
 
     // Users

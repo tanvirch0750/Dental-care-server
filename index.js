@@ -91,7 +91,7 @@ const run = async () => {
     });
 
     // check user is admin or not return- true or false
-    app.get("/users/admin/:email", verifyJwt, async (req, res) => {
+    app.get("/admin/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user.role === "admin";

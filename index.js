@@ -13,6 +13,7 @@ app.use(express.json());
 
 const verifyJwt = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log(authHeader);
   if (!authHeader) {
     res.status(401).send({ message: "UNauthorized access" });
   }
@@ -51,11 +52,11 @@ const run = async () => {
     });
 
     // Users
-    //post
+    //post - will use when login and signup
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
-      console.log(user);
+
       const filter = { email };
       const options = { upsert: true };
 
@@ -70,7 +71,35 @@ const run = async () => {
       res.send({ result, token });
     });
 
-    app.get("/users", async (req, res) => {
+    // will use when make a admin route
+    app.put("/users/admin/:email", verifyJwt, async (req, res) => {
+      const email = req.params.email;
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        const filter = { email };
+        const updateDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } else {
+        res.status(403).send({ message: "forbidden" });
+      }
+    });
+
+    // check user is admin or not return- true or false
+    app.get("/users/admin/:email", verifyJwt, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+
+    // to get all the user
+    app.get("/users", verifyJwt, async (req, res) => {
       const query = {};
       const cursor = userCollection.find(query);
       const users = await cursor.toArray();
@@ -78,7 +107,7 @@ const run = async () => {
     });
 
     // Appointments
-    // get
+    // get - to get all the appointments or services
     app.get("/appointments", async (req, res) => {
       const query = {};
       const cursor = appointmentsCollection.find(query);
@@ -86,7 +115,7 @@ const run = async () => {
       res.send(appointments);
     });
 
-    // Available slots
+    // to get Available slots - this will be the main appointments get route
     app.get("/available", async (req, res) => {
       const date = req.query.date;
 
@@ -111,7 +140,7 @@ const run = async () => {
     });
 
     // Booking
-    //get
+    //get - to get all the booking
     app.get("/booking", verifyJwt, async (req, res) => {
       const patient = req.query.patient;
       const decodedEmail = req.decoded.email;
@@ -127,6 +156,7 @@ const run = async () => {
     });
 
     //post
+    // to post a booking in the database
     app.post("/booking", async (req, res) => {
       const booking = req.body;
       const query = {

@@ -47,6 +47,7 @@ const run = async () => {
     const bookingCollection = client.db("dental_care").collection("booking");
     const userCollection = client.db("dental_care").collection("users");
 
+    // primary route
     app.get("/", async (req, res) => {
       res.send("Dental Care server is running");
     });

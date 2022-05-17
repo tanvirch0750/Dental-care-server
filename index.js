@@ -189,7 +189,7 @@ const run = async () => {
     });
 
     // get doctor
-    app.get("/doctor", async (req, res) => {
+    app.get("/doctor", verifyJwt, verifyAdmin, async (req, res) => {
       const query = {};
       const cursor = doctorCollection.find(query);
       const doctor = await cursor.toArray();

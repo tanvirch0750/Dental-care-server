@@ -46,6 +46,7 @@ const run = async () => {
       .collection("appointmentsCollection");
     const bookingCollection = client.db("dental_care").collection("booking");
     const userCollection = client.db("dental_care").collection("users");
+    const doctorCollection = client.db("dental_care").collection("doctor");
 
     // primary route
     app.get("/", async (req, res) => {
@@ -172,6 +173,14 @@ const run = async () => {
       }
       const result = await bookingCollection.insertOne(booking);
       return res.send({ success: true, result });
+    });
+
+    // DOCTOR
+    // post doctor
+    app.post("/doctor", async (req, res) => {
+      const doctor = req.body;
+      const result = await doctorCollection.insertOne(doctor);
+      res.send(result);
     });
   } finally {
   }

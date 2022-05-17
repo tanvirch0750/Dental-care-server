@@ -182,6 +182,14 @@ const run = async () => {
       const result = await doctorCollection.insertOne(doctor);
       res.send(result);
     });
+
+    // get doctor
+    app.get("/doctor", async (req, res) => {
+      const query = {};
+      const cursor = doctorCollection.find(query);
+      const doctor = await cursor.toArray();
+      res.send(doctor);
+    });
   } finally {
   }
 };

@@ -195,6 +195,14 @@ const run = async () => {
       const doctor = await cursor.toArray();
       res.send(doctor);
     });
+
+    // delte doctor
+    app.delete("/doctor/:email", verifyJwt, verifyAdmin, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await doctorCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
   }
 };

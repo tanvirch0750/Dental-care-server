@@ -48,6 +48,8 @@ const run = async () => {
     const userCollection = client.db("dental_care").collection("users");
     const doctorCollection = client.db("dental_care").collection("doctor");
 
+    // verify admin middleware
+
     // primary route
     app.get("/", async (req, res) => {
       res.send("welcome to Dental care server");
@@ -74,7 +76,7 @@ const run = async () => {
     });
 
     // will use when make a admin route
-    app.put("/users/admin/:email", verifyJwt, async (req, res) => {
+    app.put("/admin/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
       const requester = req.decoded.email;
       const requesterAccount = await userCollection.findOne({

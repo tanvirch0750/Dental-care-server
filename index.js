@@ -111,7 +111,8 @@ const run = async () => {
     // get - to get all the appointments or services
     app.get("/appointments", async (req, res) => {
       const query = {};
-      const cursor = appointmentsCollection.find(query);
+      // project means get only 1 specific field
+      const cursor = appointmentsCollection.find(query).project({ name: 1 });
       const appointments = await cursor.toArray();
       res.send(appointments);
     });

@@ -163,6 +163,14 @@ const run = async () => {
       }
     });
 
+    // get- single appointment for payment
+    app.get("/booking/:appointmentId", verifyJwt, async (req, res) => {
+      const id = req.params.appointmentId;
+      const query = { _id: ObjectId(id) };
+      const booking = await bookingCollection.findOne(query);
+      res.send(booking);
+    });
+
     //post
     // to post a booking in the database
     app.post("/booking", async (req, res) => {

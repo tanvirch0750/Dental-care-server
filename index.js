@@ -218,16 +218,17 @@ const run = async () => {
       const updatedDoc = {
         $set: {
           paid: true,
-          transactionId = payment.transactionId
-        }
-      }
+          transactionId: payment.transactionId,
+        },
+      };
 
-      const updatedBooking = await bookingCollection.updateOne(filter, updatedDoc);
+      const updatedBooking = await bookingCollection.updateOne(
+        filter,
+        updatedDoc
+      );
       const paymentResult = await paymentCollection.insertOne(payment);
       res.send(updatedDoc);
     });
-
-    
 
     // DOCTOR
     // post doctor

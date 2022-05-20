@@ -49,6 +49,7 @@ const run = async () => {
     const bookingCollection = client.db("dental_care").collection("booking");
     const userCollection = client.db("dental_care").collection("users");
     const doctorCollection = client.db("dental_care").collection("doctor");
+    const paymentCollection = client.db("dental_care").collection("payments");
 
     // verify admin middleware
     const verifyAdmin = async (req, res, next) => {
@@ -83,7 +84,7 @@ const run = async () => {
 
       const result = await userCollection.updateOne(filter, updateDoc, options);
       const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, {
-        expiresIn: "1h",
+        expiresIn: "1d",
       });
       res.send({ result, token });
     });
@@ -150,6 +151,23 @@ const run = async () => {
     });
 
     // Booking
+    //post
+    // to post a booking in the database
+    app.post("/booking", async (req, res) => {
+      const booking = req.body;
+      const query = {
+        treatment: booking.treatment,
+        date: booking.date,
+        patientEmail: booking.patientEmail,
+      };
+      const exists = await bookingCollection.findOne(query);
+      if (exists) {
+        return res.send({ success: false, booking: exists });
+      }
+      const result = await bookingCollection.insertOne(booking);
+      return res.send({ success: true, result });
+    });
+
     //get - to get all the booking
     app.get("/booking", verifyJwt, async (req, res) => {
       const patient = req.query.patient;
@@ -168,7 +186,6 @@ const run = async () => {
     // get- single appointment for payment
     app.get("/booking/:appointmentId", verifyJwt, async (req, res) => {
       const id = req.params.appointmentId;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const booking = await bookingCollection.findOne(query);
       res.send(booking);
@@ -193,22 +210,24 @@ const run = async () => {
       });
     });
 
-    //post
-    // to post a booking in the database
-    app.post("/booking", async (req, res) => {
-      const booking = req.body;
-      const query = {
-        treatment: booking.treatment,
-        date: booking.date,
-        patientEmail: booking.patientEmail,
-      };
-      const exists = await bookingCollection.findOne(query);
-      if (exists) {
-        return res.send({ success: false, booking: exists });
+    // patch- update booking for payment
+    app.patch("/booking/:appointmentId", verifyJwt, async (req, res) => {
+      const id = req.params.appointmentId;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId = payment.transactionId
+        }
       }
-      const result = await bookingCollection.insertOne(booking);
-      return res.send({ success: true, result });
+
+      const updatedBooking = await bookingCollection.updateOne(filter, updatedDoc);
+      const paymentResult = await paymentCollection.insertOne(payment);
+      res.send(updatedDoc);
     });
+
+    
 
     // DOCTOR
     // post doctor
